@@ -18,7 +18,7 @@ WIDTH,HEIGHT = 256,256
 train_data_dir = './crowdai/'
 N_CLASSES = 38
 nb_train_samples = 4125
-batch_size = 16
+batch_size = 8
 epochs = 10
 
 
@@ -26,7 +26,7 @@ epochs = 10
 model = create_model(N_CLASSES)
 
 model.compile(loss = "categorical_crossentropy",
-              optimizer = optimizers.Adam(lr=0.01),
+              optimizer = optimizers.Adam(lr=0.1),
               metrics =["accuracy"] )
 
 print(model.summary())
@@ -45,9 +45,9 @@ train_datagen = ImageDataGenerator()
 train_generator = train_datagen.flow_from_directory(train_data_dir,
                                                    target_size = (WIDTH, HEIGHT),
                                                    batch_size = batch_size,
-                                                   class_mode = "categorical")
+                                                   class_mode="categorical")
 checkpoint = ModelCheckpoint("leaf_checkpoint.h5",
-                             monitor='val_acc',
+                             monitor='val_loss',
                              verbose=1, save_best_only=True,
                              save_weights_only=False,
                              mode='auto', period=1)
@@ -58,11 +58,13 @@ board = TensorBoard(log_dir="./logs_mobilenet/",
                     batch_size=batch_size,
                     write_images=True,)
 
-
-
+try:
+    model.l("./plant_model1.h5")
+except:
+    print("Creating new Model....")
 model.fit_generator(train_generator,
                     epochs = epochs,
                     callbacks = [board,checkpoint])
 
 
-model.save("Whale_model_1.h5")
+model.save("leaf_model_trained.h5")
